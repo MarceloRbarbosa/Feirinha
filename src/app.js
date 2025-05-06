@@ -2,6 +2,7 @@ import express, {json} from "express";
 
 
 const app = express();
+app.use(json());
 
 const itens = [
     {
@@ -30,6 +31,17 @@ app.get("/items/:id", (req, res)=>{
         return produto.id === Number(id);
     })
     res.send(produto);
+});
+
+app.post("/items", (req,res)=> {
+    const produto = req.body;
+    itens.push(
+        {
+            id: itens.length + 1, 
+        ...produto
+    });
+    res.send ("Seu produto foi adicionado")
+
 })
 
 
