@@ -33,15 +33,25 @@ app.get("/items/:id", (req, res)=>{
     res.send(produto);
 });
 
-app.post("/items", (req,res)=> {
+app.post("/items", (req,res) => {
     const produto = req.body;
+    
+    if(!produto.name || !produto.quantity || !produto.type) {
+        return res.status(422).send("Alguma informação está inválida ou ausente");
+    }
+
+    const produtoExistente = itens.find(item => item.name === produto.name);
+    if(produtoExistente){
+        return res.status(409).send("Este produto já está na nossa lista da feirinha");
+    }
+    
     itens.push(
         {
-            id: itens.length + 1, 
+            id: itens.length + 1,
         ...produto
     });
-    res.send ("Seu produto foi adicionado")
-
+    res.status(201).send("Seu produto foi adicionado");
+    
 })
 
 
