@@ -1,4 +1,5 @@
 import express, {json} from "express";
+import httpStatus from "http-status";
 
 
 const app = express();
@@ -17,6 +18,12 @@ const itens = [
         name: "peito de frango congelado",
         quantity:1,
         type:"carne"
+    },
+    {
+        id:3,
+        name: "Coca-Cola",
+        quantity:4,
+        type:"bebida"
     }
 ]
 
@@ -34,9 +41,19 @@ app.get("/items", (req, res)=>{
 
 app.get("/items/:id", (req, res)=>{
     const id = req.params.id;
+
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(httpStatus.BAD_REQUEST).send("ID inválido. Deve ser um número inteiro positivo.");
+      }
+
     const produto = itens.find(produto => {
         return produto.id === Number(id);
     })
+
+    if (!produto) {
+        return res.status(httpStatus.NOT_FOUND).send("Item não encontrado.");
+    }
+
     res.send(produto);
 });
 
@@ -44,12 +61,12 @@ app.post("/items", (req,res) => {
     const produto = req.body;
     
     if(!produto.name || !produto.quantity || !produto.type) {
-        return res.status(422).send("Alguma informação está inválida ou ausente");
+        return res.status(httpStatus.UNPROCESSABLE_ENTITY).send("Alguma informação está inválida ou ausente");
     }
 
     const produtoExistente = itens.find(item => item.name === produto.name);
     if(produtoExistente){
-        return res.status(409).send("Este produto já está na nossa lista da feirinha");
+        return res.status(httpStatus.CONFLICT).send("Este produto já está na nossa lista da feirinha");
     }
 
     itens.push(
@@ -57,7 +74,7 @@ app.post("/items", (req,res) => {
             id: itens.length + 1,
         ...produto
     });
-    res.status(201).send("Seu produto foi adicionado");
+    res.status(httpStatus.CREATED).send("Seu produto foi adicionado");
     
 })
 
