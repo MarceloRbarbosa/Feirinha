@@ -22,6 +22,13 @@ const itens = [
 
 
 app.get("/items", (req, res)=>{
+  const { type } = req.query;
+  if( type ){
+   const tipoDeProduto = itens.filter(produto => {
+        return produto.type.toLowerCase().includes(type.toLowerCase());
+    });
+   return  res.send(tipoDeProduto);
+  }
     res.send(itens)
 });
 
@@ -44,7 +51,7 @@ app.post("/items", (req,res) => {
     if(produtoExistente){
         return res.status(409).send("Este produto já está na nossa lista da feirinha");
     }
-    
+
     itens.push(
         {
             id: itens.length + 1,
